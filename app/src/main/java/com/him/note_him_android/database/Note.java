@@ -101,7 +101,16 @@ public class Note {
         this.audio = audio;
     }
 
-   
+    public Note(String note, String subject, String address, String lat, String lng, String description, String image, String audio) {
+        this.note = note;
+        this.subject = subject;
+        this.address = address;
+        this.lat = lat;
+        this.lng = lng;
+        this.description = description;
+        this.image = image;
+        this.audio = audio;
+    }
 
     public Note(int id, String note, String timestamp) {
         this.id = id;
