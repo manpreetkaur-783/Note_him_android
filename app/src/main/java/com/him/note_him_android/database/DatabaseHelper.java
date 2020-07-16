@@ -28,6 +28,7 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
 
         // create notes table
         db.execSQL(Note.CREATE_TABLE);
+        db.execSQL(Subject.CREATE_TABLE);
     }
 
     // Upgrading database
@@ -59,36 +60,23 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
         return id;
     }
 
-    public Note getNote(long id) {
-        // get readable database as we are not inserting anything
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(Note.TABLE_NAME,
-                new String[]{Note.COLUMN_ID, Note.COLUMN_NOTE, Note.COLUMN_TIMESTAMP},
-                Note.COLUMN_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null, null);
-
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        // prepare note object
-        Note note = new Note(
-                cursor.getInt(cursor.getColumnIndex(Note.COLUMN_ID)),
-                cursor.getString(cursor.getColumnIndex(Note.COLUMN_NOTE)),
-                cursor.getString(cursor.getColumnIndex(Note.COLUMN_TIMESTAMP)));
-
-        // close the db connection
-        cursor.close();
-
-        return note;
+    public long insertSubject(String subject) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Subject.COLUMN_SUBJECT, subject);
+        long id = db.insert(Subject.TABLE_NAME, null, values);
+        db.close();
+        // return newly inserted row id
+        return id;
     }
 
-    public List<Note> getAllNotes() {
-        List<Note> notes = new ArrayList<>();
+
+    public List<Subject> getAllSubject() {
+        List<Subject> notes = new ArrayList<>();
 
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + Note.TABLE_NAME + " ORDER BY " +
-                Note.COLUMN_TIMESTAMP + " DESC";
+        String selectQuery = "SELECT  * FROM " + Subject.TABLE_NAME + " ORDER BY " +
+                Subject.COLUMN_ID + " DESC";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -96,10 +84,10 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                Note note = new Note();
-                note.setId(cursor.getInt(cursor.getColumnIndex(Note.COLUMN_ID)));
-                note.setNote(cursor.getString(cursor.getColumnIndex(Note.COLUMN_NOTE)));
-                note.setTimestamp(cursor.getString(cursor.getColumnIndex(Note.COLUMN_TIMESTAMP)));
+                Subject note = new Subject();
+                note.setId(cursor.getInt(cursor.getColumnIndex(Subject.COLUMN_ID)));
+                note.setSubject(cursor.getString(cursor.getColumnIndex(Subject.COLUMN_SUBJECT)));
+//                note.setTimestamp(cursor.getString(cursor.getColumnIndex(Subject.COLUMN_TIMESTAMP)));
 
                 notes.add(note);
             } while (cursor.moveToNext());
