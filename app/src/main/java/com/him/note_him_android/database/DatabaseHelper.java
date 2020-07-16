@@ -70,6 +70,58 @@ public class DatabaseHelper  extends SQLiteOpenHelper {
         return id;
     }
 
+    public Note getNote(long id) {
+        // get readable database as we are not inserting anything
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(Note.TABLE_NAME,
+                new String[]{Note.COLUMN_ID, Note.COLUMN_NOTE, Note.COLUMN_TIMESTAMP},
+                Note.COLUMN_ID + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        // prepare note object
+        Note note = new Note(
+                cursor.getInt(cursor.getColumnIndex(Note.COLUMN_ID)),
+                cursor.getString(cursor.getColumnIndex(Note.COLUMN_NOTE)),
+                cursor.getString(cursor.getColumnIndex(Note.COLUMN_TIMESTAMP)));
+
+        // close the db connection
+        cursor.close();
+
+        return note;
+    }
+
+    public List<Note> getAllNotes() {
+        List<Note> notes = new ArrayList<>();
+
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + Note.TABLE_NAME + " ORDER BY " +
+                Note.COLUMN_TIMESTAMP + " DESC";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Note note = new Note();
+                note.setId(cursor.getInt(cursor.getColumnIndex(Note.COLUMN_ID)));
+                note.setNote(cursor.getString(cursor.getColumnIndex(Note.COLUMN_NOTE)));
+                note.setTimestamp(cursor.getString(cursor.getColumnIndex(Note.COLUMN_TIMESTAMP)));
+
+                notes.add(note);
+            } while (cursor.moveToNext());
+        }
+
+        // close db connection
+        db.close();
+
+        // return notes list
+        return notes;
+    }
 
     public List<Subject> getAllSubject() {
         List<Subject> notes = new ArrayList<>();
